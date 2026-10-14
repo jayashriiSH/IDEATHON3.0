@@ -3,3 +3,5 @@ judge-portal/LOGIN_CREDENTIALS.txt
 judge-portal/2_seed_judges.sql
 judge-portal/RUN_THIS_IN_SUPABASE.sql
 IDEATHON_3.0_Judging_Sheet.xlsx
+node_modules
+dist
