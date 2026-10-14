@@ -178,7 +178,7 @@ const total=r=>CR.reduce((a,_,i)=>a+(+val(r,i)||0),0);
 const r2=x=>Math.round(x*100)/100;
 const demo=new URLSearchParams(location.search).has("demo");
 let me=null,cred=null,teams=[],filter="all";
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600)}
 
 // ---- API (demo mode uses in-memory data so the UI can be previewed without a database) ----
 const mock={teams:["420","NeuroNova","CtrlPray","California Burrito","ACE","HomeTeam"].map((n,i)=>({id:i+1,name:n,members:"Member A, Member B, Member C"})),scores:{}};
@@ -266,7 +266,7 @@ $("teams").addEventListener("input",e=>{
   const i=e.target.dataset.i;
   if(i!==undefined){ // keep slider and number box in sync, clamped to range
     const max=CR[i][1];let v=e.target.value;
-    if(v!==""){v=Math.min(max,Math.max(0,+v));if(e.target.type==="number"&&+e.target.value>max)e.target.value=max}
+    if(v!==""){v=Math.min(max,Math.max(0,+v));if(e.target.type==="number"&&(+e.target.value>max||/^0\d/.test(e.target.value)))e.target.value=v}
     card.querySelectorAll(`[data-i="${i}"]`).forEach(x=>{if(x!==e.target)x.value=v});
   }
   let t=0;card.querySelectorAll('input[type=number]').forEach(n=>t+=Math.min(+n.max,+n.value||0));
@@ -281,7 +281,7 @@ async function saveCard(card){
   try{
     await rpc("portal_save_score",{u:cred.u,p:cred.p,team:t.id,v1:v[0],v2:v[1],v3:v[2],v4:v[3],v5:v[4],v6:v[5],note});
     v.forEach((x,i)=>t["c"+(i+1)]=x);t.remarks=note;
-    st.textContent="Saved ✓";st.className="st ok";progress();
+    st.textContent="Saved successfully ✓";st.className="st ok";toast("Saved successfully ✓ — "+t.name);progress();
     const pill=card.querySelector(".pill");pill.textContent=full(t)?total(t)+" / 100":has(t)?"In progress":"Pending";pill.classList.toggle("done",full(t));
   }catch(err){st.textContent="Not saved: "+err.message;st.className="st bad"}
 }
