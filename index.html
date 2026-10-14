@@ -222,17 +222,19 @@ async function loadTeams(){
   render();progress();
 }
 function progress(){
-  const d=teams.filter(has).length;
-  $("progTxt").textContent=`${d} of ${teams.length} teams scored`;
-  $("progBar").style.width=(teams.length?d/teams.length*100:0)+"%";
+  const mine=teams.filter(has).length,taken=teams.filter(t=>t.taken_by).length;
+  $("progTxt").textContent=`${mine} scored by you · ${taken} taken by other judges · ${teams.length-mine-taken} open`;
+  $("progBar").style.width=(teams.length?(mine+taken)/teams.length*100:0)+"%";
 }
 function render(){
   const f=$("q").value.toLowerCase();
   const list=teams.filter(t=>(!f||(t.name+" "+t.members).toLowerCase().includes(f))&&
-    (filter==="all"||(filter==="done"?has(t):!has(t))));
+    (filter==="all"||(filter==="done"?has(t):filter==="todo"?!has(t)&&!t.taken_by:true)));
   $("teams").innerHTML=list.length?list.map(card).join(""):`<div class="panel" style="text-align:center;color:var(--mut)">No teams match.</div>`;
 }
 function card(t){
+  if(t.taken_by)return `<div class="team" style="opacity:.65"><div class="thead" style="cursor:default"><div class="num">${t.id}</div>
+    <div class="tinfo"><b>${esc(t.name)}</b><span>${esc(t.members)}</span></div><span class="pill" style="background:var(--line);color:var(--mut)">🔒 Judged by ${esc(t.taken_by)}</span></div></div>`;
   const open=openId===t.id;
   return `<div class="team${open?" open":""}" data-id="${t.id}">
   <div class="thead"><div class="num">${t.id}</div>
@@ -283,7 +285,7 @@ async function saveCard(card){
     v.forEach((x,i)=>t["c"+(i+1)]=x);t.remarks=note;
     st.textContent="Saved successfully ✓";st.className="st ok";toast("Saved successfully ✓ — "+t.name);progress();
     const pill=card.querySelector(".pill");pill.textContent=has(t)?total(t)+" / 100"+(full(t)?"":" · partial"):"Pending";pill.classList.toggle("done",has(t));
-  }catch(err){st.textContent="Not saved: "+err.message;st.className="st bad"}
+  }catch(err){st.textContent="Not saved: "+err.message;st.className="st bad";if(/already being judged/.test(err.message)){toast(err.message);loadTeams()}}
 }
 
 // ---- admin view ----
