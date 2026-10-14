@@ -5,3 +5,5 @@ judge-portal/RUN_THIS_IN_SUPABASE.sql
 IDEATHON_3.0_Judging_Sheet.xlsx
 node_modules
 dist
+judge-portal/ROUND2_LOGINS.txt
+judge-portal/4_round2_setup.sql

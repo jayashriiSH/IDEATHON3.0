@@ -32,7 +32,7 @@ export default function Judge({ cred, toast }) {
       <section className="hero">
         <div className="heroTxt">
           <h1>Idea Pitching <span className="hl">Scorecard</span></h1>
-          <p>Preliminary round · 100 marks per team. Type each score — it saves automatically.</p>
+          <p>Round 2 · 100 marks per team. Type each score — it saves automatically.</p>
         </div>
         <div className="heroStats">
           <div className="stat"><b>{mine}</b><span>scored by you</span></div>
