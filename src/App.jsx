@@ -72,6 +72,7 @@ function Login({ onDone }) {
   return (
     <section className="auth">
       <div className="authSide">
+        <Logo size={120} />
         <span className="hl">IDEATHON 3.0</span>
         <h1>Judge portal for bold ideas.</h1>
         <p>Score every pitch on six criteria, add your remarks, and watch the leaderboard take shape. CINTEL Student Association.</p>
