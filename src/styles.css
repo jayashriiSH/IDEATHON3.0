@@ -184,3 +184,7 @@ td.rem { white-space: normal; min-width: 180px; text-align: left; }
   .scoreBox input { width: 100px; }
   .pill { font-size: 12px; padding: 5px 10px; }
 }
+
+/* saved (read-only) state */
+.crits.ro .scoreBox input, .body textarea[readonly] { background: #f6f6f6; border-color: #bdbdc2; cursor: default; }
+.crits.ro .scoreBox input:focus, .body textarea[readonly]:focus { box-shadow: none; }

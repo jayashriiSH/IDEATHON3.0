@@ -77,6 +77,7 @@ function TeamCard({ t, cred, open, onToggle, onSaved, toast, reload }) {
   const [vals, setVals] = useState(() => strVals(t));
   const [note, setNote] = useState(t.remarks || "");
   const [status, setStatus] = useState({ text: has(t) ? "Saved" : "Not scored yet", kind: "" });
+  const [editing, setEditing] = useState(!has(t));
   const latest = useRef({ vals, note });
   const timer = useRef();
   latest.current = { vals, note };
@@ -107,10 +108,18 @@ function TeamCard({ t, cred, open, onToggle, onSaved, toast, reload }) {
       onSaved({ ...Object.fromEntries(v.map((x, i) => ["c" + (i + 1), x])), remarks: nt });
       setStatus({ text: "Saved successfully ✓", kind: "ok" });
       toast("Saved successfully ✓ — " + t.name);
+      return true;
     } catch (err) {
       setStatus({ text: "Not saved: " + err.message, kind: "bad" });
       if (/already being judged/.test(err.message)) { toast(err.message); reload(); }
+      return false;
     }
+  }
+
+  async function saveNow() {
+    clearTimeout(timer.current);
+    setStatus({ text: "Saving…", kind: "" });
+    if (await save()) setEditing(false);
   }
 
   const queue = () => {
@@ -137,7 +146,7 @@ function TeamCard({ t, cred, open, onToggle, onSaved, toast, reload }) {
       {open && (
         <div className="body">
           <div className="mem">Team members: {t.members}</div>
-          <div className="crits">
+          <div className={"crits" + (editing ? "" : " ro")}>
             {CR.map((c, i) => (
               <div className="crit" key={i}>
                 <div className="critTxt">
@@ -152,7 +161,8 @@ function TeamCard({ t, cred, open, onToggle, onSaved, toast, reload }) {
                     value={vals[i]}
                     placeholder="–"
                     aria-label={c[0] + " score"}
-                    onFocus={(e) => e.target.select()}
+                    readOnly={!editing}
+                    onFocus={(e) => editing && e.target.select()}
                     onChange={(e) => setScore(i, e.target.value)}
                   />
                   <em>/ {c[1]}</em>
@@ -166,13 +176,23 @@ function TeamCard({ t, cred, open, onToggle, onSaved, toast, reload }) {
           </div>
           <textarea
             rows={2}
+            readOnly={!editing}
             placeholder="Remarks (optional)"
             value={note}
             onChange={(e) => { setNote(e.target.value); queue(); }}
           />
           <div className="saveRow">
-            <span className={"st " + status.kind}>{status.text}</span>
-            <button className="btn dark sm" onClick={() => { clearTimeout(timer.current); setStatus({ text: "Saving…", kind: "" }); save(); }}>Save</button>
+            {editing ? (
+              <>
+                <span className={"st " + status.kind}>{status.text}</span>
+                <button className="btn dark sm" onClick={saveNow}>Save</button>
+              </>
+            ) : (
+              <>
+                <span className="st ok">✓ Saved</span>
+                <button className="btn ghost sm" onClick={() => { setEditing(true); setStatus({ text: "Editing", kind: "" }); }}>✎ Edit</button>
+              </>
+            )}
           </div>
         </div>
       )}
