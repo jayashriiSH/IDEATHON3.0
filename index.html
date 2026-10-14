@@ -222,14 +222,14 @@ async function loadTeams(){
   render();progress();
 }
 function progress(){
-  const d=teams.filter(full).length;
-  $("progTxt").textContent=`${d} of ${teams.length} teams fully scored`;
+  const d=teams.filter(has).length;
+  $("progTxt").textContent=`${d} of ${teams.length} teams scored`;
   $("progBar").style.width=(teams.length?d/teams.length*100:0)+"%";
 }
 function render(){
   const f=$("q").value.toLowerCase();
   const list=teams.filter(t=>(!f||(t.name+" "+t.members).toLowerCase().includes(f))&&
-    (filter==="all"||(filter==="done"?full(t):!full(t))));
+    (filter==="all"||(filter==="done"?has(t):!has(t))));
   $("teams").innerHTML=list.length?list.map(card).join(""):`<div class="panel" style="text-align:center;color:var(--mut)">No teams match.</div>`;
 }
 function card(t){
@@ -237,7 +237,7 @@ function card(t){
   return `<div class="team${open?" open":""}" data-id="${t.id}">
   <div class="thead"><div class="num">${t.id}</div>
     <div class="tinfo"><b>${esc(t.name)}</b><span>${esc(t.members)}</span></div>
-    <span class="pill${full(t)?" done":""}">${full(t)?total(t)+" / 100":has(t)?"In progress":"Pending"}</span>
+    <span class="pill${has(t)?" done":""}">${has(t)?total(t)+" / 100"+(full(t)?"":" · partial"):"Pending"}</span>
     <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></div>
   <div class="body">${open?body(t):""}</div></div>`;
 }
@@ -282,7 +282,7 @@ async function saveCard(card){
     await rpc("portal_save_score",{u:cred.u,p:cred.p,team:t.id,v1:v[0],v2:v[1],v3:v[2],v4:v[3],v5:v[4],v6:v[5],note});
     v.forEach((x,i)=>t["c"+(i+1)]=x);t.remarks=note;
     st.textContent="Saved successfully ✓";st.className="st ok";toast("Saved successfully ✓ — "+t.name);progress();
-    const pill=card.querySelector(".pill");pill.textContent=full(t)?total(t)+" / 100":has(t)?"In progress":"Pending";pill.classList.toggle("done",full(t));
+    const pill=card.querySelector(".pill");pill.textContent=has(t)?total(t)+" / 100"+(full(t)?"":" · partial"):"Pending";pill.classList.toggle("done",has(t));
   }catch(err){st.textContent="Not saved: "+err.message;st.className="st bad"}
 }
 
